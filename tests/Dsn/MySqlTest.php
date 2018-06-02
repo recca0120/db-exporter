@@ -1,6 +1,6 @@
 <?php
 
-namespace Recca0120\DbExporter\Tests\DSN;
+namespace Recca0120\DbExporter\Tests\Dsn;
 
 use Mockery as m;
 use PHPUnit\Framework\TestCase;
