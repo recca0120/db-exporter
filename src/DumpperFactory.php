@@ -7,22 +7,19 @@ use Recca0120\DbExporter\Dsn\Factory;
 
 class DumpperFactory
 {
-    private $config;
-
     private $factory;
 
-    public function __construct($config, Factory $factory = null)
+    public function __construct(Factory $factory = null)
     {
-        $this->config = $config;
         $this->factory = $factory ?: new Factory;
     }
 
-    public function create()
+    public function create($config)
     {
         return new Mysqldump(
-            (string) $this->factory->create($this->config),
-            $this->config['username'],
-            $this->config['password']
+            (string) $this->factory->create($config),
+            $config['username'],
+            $config['password']
         );
     }
 }

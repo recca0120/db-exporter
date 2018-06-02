@@ -34,8 +34,8 @@ class DumpperFactoryTest extends TestCase
     /** @test */
     public function test_it_should_receive_ifsnop_mysqldump()
     {
-        $dumpperFactory = new DumpperFactory($this->config);
+        $dumpperFactory = new DumpperFactory();
 
-        $this->assertInstanceOf(Mysqldump::class, $dumpperFactory->create());
+        $this->assertInstanceOf(Mysqldump::class, $dumpperFactory->create($this->config));
     }
 }
