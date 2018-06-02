@@ -2,29 +2,14 @@
 
 namespace Recca0120\DbExporter\Tests;
 
+use PDO;
 use Mockery as m;
+use Ifsnop\Mysqldump\Mysqldump;
 use PHPUnit\Framework\TestCase;
 use Recca0120\DbExporter\DumperFactory;
-use Ifsnop\Mysqldump\Mysqldump;
 
 class DumperFactoryTest extends TestCase
 {
-    private $config = [
-        'driver' => 'mysql',
-        'host' => '127.0.0.1',
-        'port' => '3306',
-        'database' => 'forge',
-        'username' => 'forge',
-        'password' => '',
-        'unix_socket' => '',
-        'charset' => 'utf8mb4',
-        'collation' => 'utf8mb4_unicode_ci',
-        'prefix' => '',
-        'strict' => true,
-        'engine' => null,
-        'timezone' => '+08:00',
-    ];
-
     protected function tearDown()
     {
         parent::tearDown();
@@ -34,8 +19,30 @@ class DumperFactoryTest extends TestCase
     /** @test */
     public function test_it_should_receive_ifsnop_mysqldump()
     {
-        $dumpperFactory = new DumperFactory();
+        $dumperFactory = new DumperFactory();
 
-        $this->assertInstanceOf(Mysqldump::class, $dumpperFactory->create($this->config));
+        $connectionConfig = [
+            'driver' => 'mysql',
+            'host' => '127.0.0.1',
+            'port' => '3306',
+            'database' => 'forge',
+            'username' => 'forge',
+            'password' => '',
+            'unix_socket' => '',
+            'charset' => 'utf8mb4',
+            'collation' => 'utf8mb4_unicode_ci',
+            'prefix' => '',
+            'strict' => true,
+            'engine' => null,
+            'timezone' => '+08:00',
+        ];
+        $dumpSettings = [];
+        $pdoSettings = [
+            PDO::ATTR_PERSISTENT => true,
+            PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+            PDO::MYSQL_ATTR_USE_BUFFERED_QUERY => false,
+        ];
+
+        $this->assertInstanceOf(Mysqldump::class, $dumperFactory->create($connectionConfig, $dumpSettings, $pdoSettings));
     }
 }
