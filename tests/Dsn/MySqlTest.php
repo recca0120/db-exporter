@@ -40,4 +40,27 @@ class MySqlTest extends TestCase
         $this->assertSame((string) $dsn, "mysql:host={$host};port={$port};dbname={$database}");
     }
 
+    public function test_get_host_dsn_without_port()
+    {
+        $config = [
+            'driver' => 'mysql',
+            'host' => '127.0.0.1',
+            'database' => 'forge',
+            'username' => 'forge',
+            'password' => '',
+            'unix_socket' => '',
+            'charset' => 'utf8mb4',
+            'collation' => 'utf8mb4_unicode_ci',
+            'prefix' => '',
+            'strict' => true,
+            'engine' => null,
+            'timezone' => '+08:00',
+        ];
+
+        extract($config, EXTR_SKIP);
+
+        $dsn = new MySql($config);
+
+        $this->assertSame((string) $dsn, "mysql:host={$host};dbname={$database}");
+    }
 }

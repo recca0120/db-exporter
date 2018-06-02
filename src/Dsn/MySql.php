@@ -15,7 +15,9 @@ class MySql
     {
         extract($this->config, EXTR_SKIP);
 
-        return "mysql:host={$host};port={$port};dbname={$database}";
+        return isset($port)
+            ? "mysql:host={$host};port={$port};dbname={$database}"
+            : "mysql:host={$host};dbname={$database}";
     }
 
     public function __toString()
