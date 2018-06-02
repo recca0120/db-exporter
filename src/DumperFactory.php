@@ -5,7 +5,7 @@ namespace Recca0120\DbExporter;
 use Ifsnop\Mysqldump\Mysqldump;
 use Recca0120\DbExporter\Dsn\Factory;
 
-class DumpperFactory
+class DumperFactory
 {
     private $factory;
 

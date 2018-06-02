@@ -4,10 +4,10 @@ namespace Recca0120\DbExporter\Tests;
 
 use Mockery as m;
 use PHPUnit\Framework\TestCase;
-use Recca0120\DbExporter\DumpperFactory;
+use Recca0120\DbExporter\DumperFactory;
 use Ifsnop\Mysqldump\Mysqldump;
 
-class DumpperFactoryTest extends TestCase
+class DumperFactoryTest extends TestCase
 {
     private $config = [
         'driver' => 'mysql',
@@ -34,7 +34,7 @@ class DumpperFactoryTest extends TestCase
     /** @test */
     public function test_it_should_receive_ifsnop_mysqldump()
     {
-        $dumpperFactory = new DumpperFactory();
+        $dumpperFactory = new DumperFactory();
 
         $this->assertInstanceOf(Mysqldump::class, $dumpperFactory->create($this->config));
     }
