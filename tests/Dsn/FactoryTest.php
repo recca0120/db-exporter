@@ -24,7 +24,7 @@ class FactoryTest extends TestCase
             'strict' => true,
             'engine' => null,
             'timezone' => '+08:00',
-        ]
+        ],
     ];
 
     protected function tearDown()
@@ -39,5 +39,4 @@ class FactoryTest extends TestCase
         $factory = new Factory();
         $this->assertInstanceOf(MySql::class, $factory->create($this->connections['mysql']));
     }
-
 }
