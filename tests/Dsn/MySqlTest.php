@@ -33,11 +33,8 @@ class MySqlTest extends TestCase
             'timezone' => '+08:00',
         ];
 
-        extract($config, EXTR_SKIP);
-
         $dsn = new MySql($config);
-
-        $this->assertSame((string) $dsn, "mysql:host={$host};port={$port};dbname={$database}");
+        $this->assertSame((string) $dsn, "mysql:host={$config['host']};port={$config['port']};dbname={$config['database']}");
     }
 
     public function test_get_host_dsn_without_port()
@@ -57,10 +54,28 @@ class MySqlTest extends TestCase
             'timezone' => '+08:00',
         ];
 
-        extract($config, EXTR_SKIP);
+        $dsn = new MySql($config);
+        $this->assertSame((string) $dsn, "mysql:host={$config['host']};dbname={$config['database']}");
+    }
+
+    public function test_get_socket_dsn()
+    {
+        $config = [
+            'driver' => 'mysql',
+            'host' => '127.0.0.1',
+            'database' => 'forge',
+            'username' => 'forge',
+            'password' => '',
+            'unix_socket' => '/var/run/mysqld.socket',
+            'charset' => 'utf8mb4',
+            'collation' => 'utf8mb4_unicode_ci',
+            'prefix' => '',
+            'strict' => true,
+            'engine' => null,
+            'timezone' => '+08:00',
+        ];
 
         $dsn = new MySql($config);
-
-        $this->assertSame((string) $dsn, "mysql:host={$host};dbname={$database}");
+        $this->assertSame((string) $dsn, "mysql:unix_socket={$config['unix_socket']};dbname={$config['database']}");
     }
 }
