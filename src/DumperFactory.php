@@ -24,7 +24,7 @@ class DumperFactory
             Arr::get($connection, 'username', ''),
             Arr::get($connection, 'password', ''),
             $settings,
-            array_merge($dsn->getPdoAttributes(), $pdoAttributes)
+            $pdoAttributes
         );
     }
 }
