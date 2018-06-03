@@ -36,8 +36,12 @@ class DbExport extends Command
      */
     public function handle()
     {
-        $this->manager
-            ->driver($this->option('connection'))
+        $settings = [];
+        $dumper = $this->manager->driver($this->option('connection'));
+        $lockTables = $this->boolean($this->option('lock-tables'));
+
+        $dumper
+            ->lockTables($this->boolean($this->option('lock-tables')))
             ->store($this->argument('file'), $this->option('path'));
     }
 
@@ -69,8 +73,9 @@ class DbExport extends Command
     protected function getOptions()
     {
         return [
-            ['connection', 'c', InputOption::VALUE_OPTIONAL, 'Connection Name'],
             ['path', 'o', InputOption::VALUE_OPTIONAL, 'Storage Path'],
+            ['connection', 'c', InputOption::VALUE_OPTIONAL, 'Connection Name'],
+            ['lock-tables', null, InputOption::VALUE_OPTIONAL, 'Lock Tables', true],
         ];
     }
 }

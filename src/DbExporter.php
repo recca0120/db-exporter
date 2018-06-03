@@ -28,6 +28,22 @@ class DbExporter
         $this->files = $files ?: new Filesystem();
     }
 
+    public function lockTables($lockTables = true)
+    {
+        return $this->set('lock-tables', $this->boolean($lockTables));
+    }
+
+    public function set($key, $value = null)
+    {
+        if (is_array($key) === true) {
+            $this->settings = array_merge($this->settings, $key);
+        } else {
+            $this->settings[$key] = $value;
+        }
+
+        return $this;
+    }
+
     public function store($filename = null, $storagePath = null)
     {
         if (empty($filename) === true) {
@@ -92,5 +108,12 @@ class DbExporter
         Arr::forget($settings, 'storage_path');
 
         return $settings;
+    }
+
+    private function boolean($value)
+    {
+        return is_null($value) === true
+            ? true
+            : filter_var($value, FILTER_VALIDATE_BOOLEAN);
     }
 }

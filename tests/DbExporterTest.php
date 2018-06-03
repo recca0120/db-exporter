@@ -42,17 +42,18 @@ class DbExporterTest extends TestCase
         $settings = $this->app['config']['db-exporter'];
         $factory = m::mock(DumperFactory::class);
         $files = m::mock(Filesystem::class);
-        $dumpFile = 'dump.sql';
-
         $dbExporter = new DbExporter($connection, $settings, $factory, $files);
-
-        $settings['compress'] = Mysqldump::NONE;
-        Arr::forget($settings, 'storage_path');
+        $dumpFile = 'dump.sql';
 
         $files->shouldReceive('exists')->once()->andReturn(false);
         $files->shouldReceive('makeDirectory')->once();
 
-        $factory->shouldReceive('create')->once()->with($connection, $settings)->andReturn(
+        $factory->shouldReceive('create')->once()->with($connection, m::on(function($arguments) use ($settings) {
+            Arr::forget($settings, 'storage_path');
+            $settings['compress'] = Mysqldump::NONE;
+
+            return $arguments === $settings;
+        }))->andReturn(
             $dumper = m::mock(Mysqldump::class)
         );
 
@@ -67,17 +68,18 @@ class DbExporterTest extends TestCase
         $settings = $this->app['config']['db-exporter'];
         $factory = m::mock(DumperFactory::class);
         $files = m::mock(Filesystem::class);
-        $dumpFile = 'dump.sql.gz';
-
         $dbExporter = new DbExporter($connection, $settings, $factory, $files);
-
-        $settings['compress'] = Mysqldump::GZIP;
-        Arr::forget($settings, 'storage_path');
+        $dumpFile = 'dump.sql.gz';
 
         $files->shouldReceive('exists')->once()->andReturn(false);
         $files->shouldReceive('makeDirectory')->once();
 
-        $factory->shouldReceive('create')->once()->with($connection, $settings)->andReturn(
+        $factory->shouldReceive('create')->once()->with($connection, m::on(function($arguments) use ($settings) {
+            Arr::forget($settings, 'storage_path');
+            $settings['compress'] = Mysqldump::GZIP;
+
+            return $arguments === $settings;
+        }))->andReturn(
             $dumper = m::mock(Mysqldump::class)
         );
 
@@ -92,17 +94,18 @@ class DbExporterTest extends TestCase
         $settings = $this->app['config']['db-exporter'];
         $factory = m::mock(DumperFactory::class);
         $files = m::mock(Filesystem::class);
-        $dumpFile = 'dump.sql.bzip2';
-
         $dbExporter = new DbExporter($connection, $settings, $factory, $files);
-
-        $settings['compress'] = Mysqldump::BZIP2;
-        Arr::forget($settings, 'storage_path');
+        $dumpFile = 'dump.sql.bzip2';
 
         $files->shouldReceive('exists')->once()->andReturn(false);
         $files->shouldReceive('makeDirectory')->once();
 
-        $factory->shouldReceive('create')->once()->with($connection, $settings)->andReturn(
+        $factory->shouldReceive('create')->once()->with($connection, m::on(function($arguments) use ($settings) {
+            Arr::forget($settings, 'storage_path');
+            $settings['compress'] = Mysqldump::BZIP2;
+
+            return $arguments === $settings;
+        }))->andReturn(
             $dumper = m::mock(Mysqldump::class)
         );
 
@@ -118,20 +121,51 @@ class DbExporterTest extends TestCase
         $settings['compress'] = Mysqldump::BZIP2;
         $factory = m::mock(DumperFactory::class);
         $files = m::mock(Filesystem::class);
-        $dumpFile = '';
-
         $dbExporter = new DbExporter($connection, $settings, $factory, $files);
-
-        Arr::forget($settings, 'storage_path');
+        $dumpFile = '';
 
         $files->shouldReceive('exists')->once()->andReturn(false);
         $files->shouldReceive('makeDirectory')->once();
 
-        $factory->shouldReceive('create')->once()->with($connection, $settings)->andReturn(
+        $factory->shouldReceive('create')->once()->with($connection, m::on(function($arguments) use ($settings) {
+            Arr::forget($settings, 'storage_path');
+
+            return $arguments === $settings;
+        }))->andReturn(
             $dumper = m::mock(Mysqldump::class)
         );
 
         $dumper->shouldReceive('start')->once()->with($this->storagePath($connection['database'].'-'.date('YmdHis').'.sql.bzip2'));
+
+        $this->assertTrue($dbExporter->store($dumpFile));
+    }
+
+    /** @test */
+    public function test_it_should_change_settings()
+    {
+        $connection = Arr::get($this->app['config'], 'database.connections.mysql');
+        $settings = array_merge($this->app['config']['db-exporter'], [
+            'compress' => Mysqldump::NONE,
+        ]);
+        $factory = m::mock(DumperFactory::class);
+        $files = m::mock(Filesystem::class);
+        $dbExporter = new DbExporter($connection, $settings, $factory, $files);
+        $dumpFile = 'dump.sql';
+
+        $dbExporter->lockTables(false);
+
+        $files->shouldReceive('exists')->once()->andReturn(false);
+        $files->shouldReceive('makeDirectory')->once();
+
+        $factory->shouldReceive('create')->once()->with($connection, m::on(function ($arguments) use ($settings) {
+            Arr::forget($settings, 'storage_path');
+
+            return $arguments['lock-tables'] === false;
+        }))->andReturn(
+            $dumper = m::mock(Mysqldump::class)
+        );
+
+        $dumper->shouldReceive('start')->once()->with($this->storagePath($dumpFile));
 
         $this->assertTrue($dbExporter->store($dumpFile));
     }
