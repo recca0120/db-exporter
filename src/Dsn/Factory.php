@@ -8,7 +8,7 @@ use InvalidArgumentException;
 class Factory
 {
     private $drivers = [
-        'mysql' => '\Recca0120\DbExporter\Dsn\MySql',
+        'mysql' => Mysql::class,
     ];
 
     public function create($config)
