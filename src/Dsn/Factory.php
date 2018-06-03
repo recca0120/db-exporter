@@ -2,6 +2,9 @@
 
 namespace Recca0120\DbExporter\Dsn;
 
+use Illuminate\Support\Arr;
+use InvalidArgumentException;
+
 class Factory
 {
     private $drivers = [
@@ -10,6 +13,12 @@ class Factory
 
     public function create($config)
     {
-        return new $this->drivers[$config['driver']]($config);
+        $driver = Arr::get($this->drivers, $config['driver']);
+
+        if (is_null($driver) === true) {
+            throw new InvalidArgumentException("Dsn [$driver] not supported.");
+        }
+
+        return new $driver($config);
     }
 }
