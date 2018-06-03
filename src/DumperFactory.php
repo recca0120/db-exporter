@@ -17,12 +17,14 @@ class DumperFactory
 
     public function create($connection, $settings = [], $pdoAttributes = [])
     {
+        $dsn = $this->factory->create($connection);
+
         return new Mysqldump(
-            (string) $this->factory->create($connection),
+            (string) $dsn,
             Arr::get($connection, 'username', ''),
             Arr::get($connection, 'password', ''),
             $settings,
-            $pdoAttributes
+            array_merge($dsn->getPdoAttributes(), $pdoAttributes)
         );
     }
 }

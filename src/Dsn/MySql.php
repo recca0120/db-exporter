@@ -4,7 +4,7 @@ namespace Recca0120\DbExporter\Dsn;
 
 class MySql extends Dsn
 {
-    public function getDsn()
+    public function toString()
     {
         return $this->hasSocket() === true
             ? $this->getSocketDsn()
