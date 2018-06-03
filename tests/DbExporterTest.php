@@ -7,6 +7,7 @@ use Illuminate\Support\Arr;
 use Ifsnop\Mysqldump\Mysqldump;
 use PHPUnit\Framework\TestCase;
 use Recca0120\DbExporter\DbExporter;
+use Illuminate\Filesystem\Filesystem;
 use Recca0120\DbExporter\DumperFactory;
 
 class DbExporterTest extends TestCase
@@ -40,11 +41,16 @@ class DbExporterTest extends TestCase
         $connection = Arr::get($this->app['config'], 'database.connections.mysql');
         $settings = $this->app['config']['db-exporter'];
         $factory = m::mock(DumperFactory::class);
+        $files = m::mock(Filesystem::class);
         $dumpFile = 'dump.sql';
 
-        $dbExporter = new DbExporter($connection, $settings, $factory);
+        $dbExporter = new DbExporter($connection, $settings, $factory, $files);
 
         $settings['compress'] = Mysqldump::NONE;
+        Arr::forget($settings, 'storage_path');
+
+        $files->shouldReceive('exists')->once()->andReturn(false);
+        $files->shouldReceive('makeDirectory')->once();
 
         $factory->shouldReceive('create')->once()->with($connection, $settings)->andReturn(
             $dumper = m::mock(Mysqldump::class)
@@ -60,11 +66,16 @@ class DbExporterTest extends TestCase
         $connection = Arr::get($this->app['config'], 'database.connections.mysql');
         $settings = $this->app['config']['db-exporter'];
         $factory = m::mock(DumperFactory::class);
+        $files = m::mock(Filesystem::class);
         $dumpFile = 'dump.sql.gz';
 
-        $dbExporter = new DbExporter($connection, $settings, $factory);
+        $dbExporter = new DbExporter($connection, $settings, $factory, $files);
 
         $settings['compress'] = Mysqldump::GZIP;
+        Arr::forget($settings, 'storage_path');
+
+        $files->shouldReceive('exists')->once()->andReturn(false);
+        $files->shouldReceive('makeDirectory')->once();
 
         $factory->shouldReceive('create')->once()->with($connection, $settings)->andReturn(
             $dumper = m::mock(Mysqldump::class)
@@ -80,11 +91,16 @@ class DbExporterTest extends TestCase
         $connection = Arr::get($this->app['config'], 'database.connections.mysql');
         $settings = $this->app['config']['db-exporter'];
         $factory = m::mock(DumperFactory::class);
+        $files = m::mock(Filesystem::class);
         $dumpFile = 'dump.sql.bzip2';
 
-        $dbExporter = new DbExporter($connection, $settings, $factory);
+        $dbExporter = new DbExporter($connection, $settings, $factory, $files);
 
         $settings['compress'] = Mysqldump::BZIP2;
+        Arr::forget($settings, 'storage_path');
+
+        $files->shouldReceive('exists')->once()->andReturn(false);
+        $files->shouldReceive('makeDirectory')->once();
 
         $factory->shouldReceive('create')->once()->with($connection, $settings)->andReturn(
             $dumper = m::mock(Mysqldump::class)
@@ -101,9 +117,15 @@ class DbExporterTest extends TestCase
         $settings = $this->app['config']['db-exporter'];
         $settings['compress'] = Mysqldump::BZIP2;
         $factory = m::mock(DumperFactory::class);
+        $files = m::mock(Filesystem::class);
         $dumpFile = '';
 
-        $dbExporter = new DbExporter($connection, $settings, $factory);
+        $dbExporter = new DbExporter($connection, $settings, $factory, $files);
+
+        Arr::forget($settings, 'storage_path');
+
+        $files->shouldReceive('exists')->once()->andReturn(false);
+        $files->shouldReceive('makeDirectory')->once();
 
         $factory->shouldReceive('create')->once()->with($connection, $settings)->andReturn(
             $dumper = m::mock(Mysqldump::class)

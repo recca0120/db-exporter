@@ -4,6 +4,7 @@ namespace Recca0120\DbExporter;
 
 use Illuminate\Support\Arr;
 use Ifsnop\Mysqldump\Mysqldump;
+use Illuminate\Filesystem\Filesystem;
 
 class DbExporter
 {
@@ -19,11 +20,12 @@ class DbExporter
         'bzip2' => Mysqldump::BZIP2,
     ];
 
-    public function __construct($connection, $settings = [], DumperFactory $factory = null)
+    public function __construct($connection, $settings = [], DumperFactory $factory = null, Filesystem $files = null)
     {
         $this->connection = $connection;
         $this->settings = $settings;
         $this->factory = $factory ?: new DumperFactory();
+        $this->files = $files ?: new Filesystem();
     }
 
     public function store($filename = null, $storagePath = null)
@@ -42,23 +44,29 @@ class DbExporter
     public function dump($filename = null, $storagePath = null)
     {
         $settings = $this->settings($filename);
-        $storagePath = $this->storagePath($settings, $storagePath);
+        $storagePath = $this->storagePath($storagePath);
         $dumper = $this->factory->create($this->connection, $settings);
         $dumper->start($storagePath.$filename);
 
         return true;
     }
 
-    private function storagePath($settings, $storagePath)
+    private function storagePath($storagePath)
     {
         if ($storagePath === '') {
             return '';
         }
 
-        $storagePath = $storagePath ?: Arr::get($settings, 'storage_path');
+        $storagePath = $storagePath ?: Arr::get($this->settings, 'storage_path');
 
-        if (empty($storagePath) === false) {
-            $storagePath = rtrim($storagePath, '/').'/';
+        if (empty($storagePath) === true) {
+            return $storagePath;
+        }
+
+        $storagePath = rtrim($storagePath, '/').'/';
+
+        if ($this->files->exists($storagePath) === false) {
+            $this->files->makeDirectory($storagePath, 0777);
         }
 
         return $storagePath;
@@ -80,6 +88,8 @@ class DbExporter
         if (empty($extension) === false) {
             $settings['compress'] = Arr::get($this->compress, $extension, Mysqldump::NONE);
         }
+
+        Arr::forget($settings, 'storage_path');
 
         return $settings;
     }
