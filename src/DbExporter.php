@@ -39,20 +39,29 @@ class DbExporter
         return $this->dump($filename, $storagePath);
     }
 
-    public function dump($filename = null, $storgePath = null)
+    public function dump($filename = null, $storagePath = null)
     {
         $settings = $this->settings($filename);
-
-        $storgePath = $storgePath ?: Arr::get($settings, 'storage_path');
-
-        if (empty($storgePath) === false) {
-            $storgePath = rtrim($storgePath, '/').'/';
-        }
-
+        $storagePath = $this->storagePath($settings, $storagePath);
         $dumper = $this->factory->create($this->connection, $settings);
-        $dumper->start($storgePath.$filename);
+        $dumper->start($storagePath.$filename);
 
         return true;
+    }
+
+    private function storagePath($settings, $storagePath)
+    {
+        if ($storagePath === '') {
+            return '';
+        }
+
+        $storagePath = $storagePath ?: Arr::get($settings, 'storage_path');
+
+        if (empty($storagePath) === false) {
+            $storagePath = rtrim($storagePath, '/').'/';
+        }
+
+        return $storagePath;
     }
 
     private function extension($filename)
