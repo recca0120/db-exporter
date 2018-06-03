@@ -17,7 +17,11 @@ class DbExporter
         $this->factory = $factory ?: new DumperFactory();
     }
 
-    public function store($filename = '')
+    public function store($filename = null)
     {
+        $dumper = $this->factory->create($this->connection, $this->settings);
+        $dumper->start($filename);
+
+        return true;
     }
 }

@@ -3,8 +3,8 @@
 return [
     'include-tables' => [],
     'exclude-tables' => [],
-    // none, bzip2, none
-    'compress' => 'gzip',
+    // GZIP, BZIP2, None
+    'compress' => 'none',
     'init_commands' => [],
     'no-data' => [],
     'reset-auto-increment' => false,
