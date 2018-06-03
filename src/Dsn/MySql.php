@@ -2,20 +2,8 @@
 
 namespace Recca0120\DbExporter\Dsn;
 
-class MySql
+class MySql extends Dsn
 {
-    private $config;
-
-    public function __construct($config)
-    {
-        $this->config = $config;
-    }
-
-    public function __toString()
-    {
-        return $this->getDsn();
-    }
-
     public function getDsn()
     {
         return $this->hasSocket() === true

@@ -9,6 +9,8 @@ class Factory
 {
     private $drivers = [
         'mysql' => MySql::class,
+        'pgsql' => Postgres::class,
+        'postgres' => Postgres::class,
     ];
 
     public function create($config)
