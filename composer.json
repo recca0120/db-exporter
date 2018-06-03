@@ -39,7 +39,7 @@
     "extra": {
         "laravel": {
             "providers": [
-                "Recca0120\\Generator\\GeneratorServiceProvider"
+                "Recca0120\\DbExporter\\DbExporterServiceProvider"
             ]
         }
     }
