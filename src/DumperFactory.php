@@ -2,7 +2,7 @@
 
 namespace Recca0120\DbExporter;
 
-use Illumintate\Support\Arr;
+use Illuminate\Support\Arr;
 use Ifsnop\Mysqldump\Mysqldump;
 use Recca0120\DbExporter\Dsn\Factory;
 
