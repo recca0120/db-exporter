@@ -1,6 +1,7 @@
 <?php
 
 return [
+    'storage_path' => storage_path('db-exporter'),
     'include-tables' => [],
     'exclude-tables' => [],
     // GZIP, BZIP2, None

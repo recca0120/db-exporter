@@ -26,7 +26,7 @@ class DbExporter
         $this->factory = $factory ?: new DumperFactory();
     }
 
-    public function store($filename = null)
+    public function store($filename = null, $storagePath = null)
     {
         if (empty($filename) === true) {
             $compress = ucfirst(Arr::get($this->settings, 'compress', Mysqldump::NONE));
@@ -36,13 +36,21 @@ class DbExporter
             $filename = sprintf('%s-%s.sql%s', $database, date('YmdHis'), $extension);
         }
 
-        return $this->dump($filename);
+        return $this->dump($filename, $storagePath);
     }
 
-    public function dump($filename = null)
+    public function dump($filename = null, $storgePath = null)
     {
-        $dumper = $this->factory->create($this->connection, $this->settings($filename));
-        $dumper->start($filename);
+        $settings = $this->settings($filename);
+
+        $storgePath = $storgePath ?: Arr::get($settings, 'storage_path');
+
+        if (empty($storgePath) === false) {
+            $storgePath = rtrim($storgePath, '/').'/';
+        }
+
+        $dumper = $this->factory->create($this->connection, $settings);
+        $dumper->start($storgePath.$filename);
 
         return true;
     }

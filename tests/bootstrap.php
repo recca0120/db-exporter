@@ -51,23 +51,9 @@ if (function_exists('env') === false) {
     }
 }
 
-if (function_exists('base_path') === false) {
-    function base_path($path)
+if (function_exists('storage_path') === false) {
+    function storage_path($path)
     {
-        return realpath(__DIR__.'/fixtures/'.$path);
-    }
-}
-
-if (function_exists('app_path') === false) {
-    function app_path($path)
-    {
-        return realpath(__DIR__.'/fixtures/app/'.$path);
-    }
-}
-
-if (function_exists('resource_path') === false) {
-    function resource_path($path)
-    {
-        return realpath(__DIR__.'/../resources/'.$path);
+        return __DIR__.'/'.$path;
     }
 }

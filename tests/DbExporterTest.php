@@ -50,7 +50,7 @@ class DbExporterTest extends TestCase
             $dumper = m::mock(Mysqldump::class)
         );
 
-        $dumper->shouldReceive('start')->once()->with($dumpFile);
+        $dumper->shouldReceive('start')->once()->with($this->storagePath($dumpFile));
 
         $this->assertTrue($dbExporter->store($dumpFile));
     }
@@ -70,7 +70,7 @@ class DbExporterTest extends TestCase
             $dumper = m::mock(Mysqldump::class)
         );
 
-        $dumper->shouldReceive('start')->once()->with($dumpFile);
+        $dumper->shouldReceive('start')->once()->with($this->storagePath($dumpFile));
 
         $this->assertTrue($dbExporter->store($dumpFile));
     }
@@ -90,7 +90,7 @@ class DbExporterTest extends TestCase
             $dumper = m::mock(Mysqldump::class)
         );
 
-        $dumper->shouldReceive('start')->once()->with($dumpFile);
+        $dumper->shouldReceive('start')->once()->with($this->storagePath($dumpFile));
 
         $this->assertTrue($dbExporter->store($dumpFile));
     }
@@ -109,8 +109,13 @@ class DbExporterTest extends TestCase
             $dumper = m::mock(Mysqldump::class)
         );
 
-        $dumper->shouldReceive('start')->once()->with($connection['database'].'-'.date('YmdHis').'.sql.bzip2');
+        $dumper->shouldReceive('start')->once()->with($this->storagePath($connection['database'].'-'.date('YmdHis').'.sql.bzip2'));
 
         $this->assertTrue($dbExporter->store($dumpFile));
+    }
+
+    private function storagePath($path)
+    {
+        return storage_path('db-exporter/'.$path);
     }
 }
