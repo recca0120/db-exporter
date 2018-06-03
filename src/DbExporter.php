@@ -4,14 +4,14 @@ namespace Recca0120\DbExporter;
 
 class DbExporter
 {
-    private $connectionConfig;
+    private $connection;
 
-    private $dumpSettings = [];
+    private $settings = [];
 
-    public function __construct($connectionConfig, $dumpSettings = [], DumperFactory $factory = null)
+    public function __construct($connection, $settings = [], DumperFactory $factory = null)
     {
-        $this->connectionConfig = $connectionConfig;
-        $this->dumpSettings = array_merge($this->dumpSettings, $dumpSettings);
+        $this->connection = $connection;
+        $this->settings = array_merge($this->settings, $settings);
         $this->factory = $factory ?: new DumperFactory;
     }
 }
