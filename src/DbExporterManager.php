@@ -27,7 +27,7 @@ class DbExporterManager extends Manager
         return new DbExporter(
             $this->factory->create(
                 $connection,
-                Arr::get($this->app['config'], 'db-exporter', [])
+                $this->getSettings($connection)
             )
         );
     }
@@ -35,5 +35,16 @@ class DbExporterManager extends Manager
     private function getConnection($driver)
     {
         return Arr::get($this->app['config'], 'database.connections.'.$driver);
+    }
+
+    private function getSettings($connection)
+    {
+        $settings = Arr::get($this->app['config'], 'db-exporter', []);
+
+        if (empty($connection['charset']) === false) {
+            $settings['default-character-set'] = $connection['charset'];
+        }
+
+        return $settings;
     }
 }
