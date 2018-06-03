@@ -40,6 +40,7 @@ class DbExporterTest extends TestCase
         $connection = Arr::get($this->app['config'], 'database.connections.mysql');
         $settings = $this->app['config']['db-exporter'];
         $factory = m::mock(DumperFactory::class);
+        $dumpFile = 'dump.sql';
 
         $dbExporter = new DbExporter($connection, $settings, $factory);
 
@@ -47,8 +48,48 @@ class DbExporterTest extends TestCase
             $dumper = m::mock(Mysqldump::class)
         );
 
-        $dumper->shouldReceive('start')->once()->with('dump.sql');
+        $dumper->shouldReceive('start')->once()->with($dumpFile);
 
-        $this->assertTrue($dbExporter->store('dump.sql'));
+        $this->assertTrue($dbExporter->store($dumpFile));
+    }
+
+    public function test_it_should_store_gzip()
+    {
+        $connection = Arr::get($this->app['config'], 'database.connections.mysql');
+        $settings = $this->app['config']['db-exporter'];
+        $factory = m::mock(DumperFactory::class);
+        $dumpFile = 'dump.sql.gz';
+
+        $dbExporter = new DbExporter($connection, $settings, $factory);
+
+        $settings['compress'] = Mysqldump::GZIP;
+
+        $factory->shouldReceive('create')->once()->with($connection, $settings)->andReturn(
+            $dumper = m::mock(Mysqldump::class)
+        );
+
+        $dumper->shouldReceive('start')->once()->with($dumpFile);
+
+        $this->assertTrue($dbExporter->store($dumpFile));
+    }
+
+    public function test_it_should_store_bzip2()
+    {
+        $connection = Arr::get($this->app['config'], 'database.connections.mysql');
+        $settings = $this->app['config']['db-exporter'];
+        $factory = m::mock(DumperFactory::class);
+        $dumpFile = 'dump.sql.bzip2';
+
+        $dbExporter = new DbExporter($connection, $settings, $factory);
+
+        $settings['compress'] = Mysqldump::BZIP2;
+
+        $factory->shouldReceive('create')->once()->with($connection, $settings)->andReturn(
+            $dumper = m::mock(Mysqldump::class)
+        );
+
+        $dumper->shouldReceive('start')->once()->with($dumpFile);
+
+        $this->assertTrue($dbExporter->store($dumpFile));
     }
 }

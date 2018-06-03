@@ -4,7 +4,7 @@ return [
     'include-tables' => [],
     'exclude-tables' => [],
     // GZIP, BZIP2, None
-    'compress' => 'none',
+    'compress' => 'gzip',
     'init_commands' => [],
     'no-data' => [],
     'reset-auto-increment' => false,
