@@ -3,6 +3,7 @@
 namespace Recca0120\DbExporter;
 
 use Illuminate\Support\ServiceProvider;
+use Recca0120\DbExporter\Console\Commands\DbExport;
 use Recca0120\DbExporter\Dsn\Factory as DsnFactory;
 
 class DbExporterServiceProvider extends ServiceProvider
@@ -17,5 +18,7 @@ class DbExporterServiceProvider extends ServiceProvider
         $this->app->singleton(DbExporterManager::class, function ($app) {
             return new DbExporterManager($app, new DumperFactory(new DsnFactory()));
         });
+
+        $this->commands([DbExport::class]);
     }
 }
