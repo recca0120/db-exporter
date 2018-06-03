@@ -59,6 +59,10 @@ class DbExporter
 
     public function dump($filename = null, $storagePath = null)
     {
+        if (function_exists('set_time_limit') === true) {
+            set_time_limit(0);
+        }
+
         $settings = $this->settings($filename);
         $storagePath = $this->storagePath($storagePath);
         $dumper = $this->factory->create($this->connection, $settings);

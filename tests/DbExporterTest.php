@@ -48,7 +48,7 @@ class DbExporterTest extends TestCase
         $files->shouldReceive('exists')->once()->andReturn(false);
         $files->shouldReceive('makeDirectory')->once();
 
-        $factory->shouldReceive('create')->once()->with($connection, m::on(function($arguments) use ($settings) {
+        $factory->shouldReceive('create')->once()->with($connection, m::on(function ($arguments) use ($settings) {
             Arr::forget($settings, 'storage_path');
             $settings['compress'] = Mysqldump::NONE;
 
@@ -74,7 +74,7 @@ class DbExporterTest extends TestCase
         $files->shouldReceive('exists')->once()->andReturn(false);
         $files->shouldReceive('makeDirectory')->once();
 
-        $factory->shouldReceive('create')->once()->with($connection, m::on(function($arguments) use ($settings) {
+        $factory->shouldReceive('create')->once()->with($connection, m::on(function ($arguments) use ($settings) {
             Arr::forget($settings, 'storage_path');
             $settings['compress'] = Mysqldump::GZIP;
 
@@ -100,7 +100,7 @@ class DbExporterTest extends TestCase
         $files->shouldReceive('exists')->once()->andReturn(false);
         $files->shouldReceive('makeDirectory')->once();
 
-        $factory->shouldReceive('create')->once()->with($connection, m::on(function($arguments) use ($settings) {
+        $factory->shouldReceive('create')->once()->with($connection, m::on(function ($arguments) use ($settings) {
             Arr::forget($settings, 'storage_path');
             $settings['compress'] = Mysqldump::BZIP2;
 
@@ -127,7 +127,7 @@ class DbExporterTest extends TestCase
         $files->shouldReceive('exists')->once()->andReturn(false);
         $files->shouldReceive('makeDirectory')->once();
 
-        $factory->shouldReceive('create')->once()->with($connection, m::on(function($arguments) use ($settings) {
+        $factory->shouldReceive('create')->once()->with($connection, m::on(function ($arguments) use ($settings) {
             Arr::forget($settings, 'storage_path');
 
             return $arguments === $settings;
