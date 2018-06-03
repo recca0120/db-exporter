@@ -25,10 +25,9 @@ class DbExporterManager extends Manager
         $connection = $this->getConnection($driver);
 
         return new DbExporter(
-            $this->factory->create(
-                $connection,
-                $this->getSettings($connection)
-            )
+            $connection,
+            $this->getSettings($connection),
+            $this->factory
         );
     }
 

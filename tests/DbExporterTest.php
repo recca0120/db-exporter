@@ -17,6 +17,8 @@ class DbExporterTest extends TestCase
     /** @test */
     public function test_it_should_get_instance()
     {
-        $this->assertInstanceOf(DbExporter::class, new DbExporter([]));
+        $dumper = m::mock('Ifsnop\Mysqldump\Mysqldump');
+
+        $this->assertInstanceOf(DbExporter::class, new DbExporter($dumper));
     }
 }

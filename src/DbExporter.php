@@ -8,10 +8,16 @@ class DbExporter
 
     private $settings = [];
 
+    private $factory;
+
     public function __construct($connection, $settings = [], DumperFactory $factory = null)
     {
         $this->connection = $connection;
-        $this->settings = array_merge($this->settings, $settings);
-        $this->factory = $factory ?: new DumperFactory;
+        $this->settings = $settings;
+        $this->factory = $factory ?: new DumperFactory();
+    }
+
+    public function store($filename = '')
+    {
     }
 }

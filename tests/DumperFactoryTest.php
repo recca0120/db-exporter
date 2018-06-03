@@ -16,7 +16,7 @@ class DumperFactoryTest extends TestCase
     protected function setUp()
     {
         parent::setUp();
-        $this->app['config']['database'] = require __DIR__ . '/../config/database.php';
+        $this->app['config']['database'] = require __DIR__.'/../config/database.php';
     }
 
     protected function tearDown()
