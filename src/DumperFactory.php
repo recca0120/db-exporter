@@ -18,8 +18,8 @@ class DumperFactory
     {
         return new Mysqldump(
             (string) $this->factory->create($connection),
-            $connection['username'],
-            $connection['password'],
+            Arr::get($connection, 'username', ''),
+            Arr::get($connection, 'password', ''),
             $settings,
             $pdoAttributes
         );
