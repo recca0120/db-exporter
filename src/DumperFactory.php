@@ -14,14 +14,14 @@ class DumperFactory
         $this->factory = $factory ?: new Factory;
     }
 
-    public function create($connectionConfig, $dumpSettings = [], $pdoSettings = [])
+    public function create($connection, $settings = [], $pdoAttributes = [])
     {
         return new Mysqldump(
-            (string) $this->factory->create($connectionConfig),
-            $connectionConfig['username'],
-            $connectionConfig['password'],
-            $dumpSettings,
-            $pdoSettings
+            (string) $this->factory->create($connection),
+            $connection['username'],
+            $connection['password'],
+            $settings,
+            $pdoAttributes
         );
     }
 }
