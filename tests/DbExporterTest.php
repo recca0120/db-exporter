@@ -44,6 +44,8 @@ class DbExporterTest extends TestCase
 
         $dbExporter = new DbExporter($connection, $settings, $factory);
 
+        $settings['compress'] = Mysqldump::NONE;
+
         $factory->shouldReceive('create')->once()->with($connection, $settings)->andReturn(
             $dumper = m::mock(Mysqldump::class)
         );
@@ -89,6 +91,25 @@ class DbExporterTest extends TestCase
         );
 
         $dumper->shouldReceive('start')->once()->with($dumpFile);
+
+        $this->assertTrue($dbExporter->store($dumpFile));
+    }
+
+    public function test_it_should_store_empty_filename()
+    {
+        $connection = Arr::get($this->app['config'], 'database.connections.mysql');
+        $settings = $this->app['config']['db-exporter'];
+        $settings['compress'] = Mysqldump::BZIP2;
+        $factory = m::mock(DumperFactory::class);
+        $dumpFile = '';
+
+        $dbExporter = new DbExporter($connection, $settings, $factory);
+
+        $factory->shouldReceive('create')->once()->with($connection, $settings)->andReturn(
+            $dumper = m::mock(Mysqldump::class)
+        );
+
+        $dumper->shouldReceive('start')->once()->with($connection['database'].'-'.date('YmdHis').'.sql.bzip2');
 
         $this->assertTrue($dbExporter->store($dumpFile));
     }

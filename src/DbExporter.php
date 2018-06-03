@@ -13,7 +13,7 @@ class DbExporter
 
     private $factory;
 
-    private $extensions = [
+    private $compress = [
         'gz' => Mysqldump::GZIP,
         'gzip' => Mysqldump::GZIP,
         'bzip2' => Mysqldump::BZIP2,
@@ -28,18 +28,42 @@ class DbExporter
 
     public function store($filename = null)
     {
+        if (empty($filename) === true) {
+            $compress = ucfirst(Arr::get($this->settings, 'compress', Mysqldump::NONE));
+            $extension = Arr::get(array_flip($this->compress), $compress, '');
+            $extension = empty($extension) === true ? '' : '.'.$extension;
+            $database = Arr::get($this->connection, 'database');
+            $filename = sprintf('%s-%s.sql%s', $database, date('YmdHis'), $extension);
+        }
+
         return $this->dump($filename);
     }
 
     public function dump($filename = null)
     {
-        $extension = strtolower(substr($filename, strrpos($filename, '.') + 1));
-        $settings = $this->settings;
-        $settings['compress'] = Arr::get($this->extensions, $extension, Mysqldump::NONE);
-
-        $dumper = $this->factory->create($this->connection, $settings);
+        $dumper = $this->factory->create($this->connection, $this->settings($filename));
         $dumper->start($filename);
 
         return true;
+    }
+
+    private function extension($filename)
+    {
+        $lastestDotPosition = strrpos($filename, '.');
+
+        return $lastestDotPosition !== false
+            ? strtolower(substr($filename, strrpos($filename, '.') + 1))
+            : '';
+    }
+
+    private function settings($filename)
+    {
+        $settings = $this->settings;
+        $extension = $this->extension($filename);
+        if (empty($extension) === false) {
+            $settings['compress'] = Arr::get($this->compress, $extension, Mysqldump::NONE);
+        }
+
+        return $settings;
     }
 }
