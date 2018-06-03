@@ -8,7 +8,7 @@ use InvalidArgumentException;
 class Factory
 {
     private $drivers = [
-        'mysql' => Mysql::class,
+        'mysql' => MySql::class,
     ];
 
     public function create($config)

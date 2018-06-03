@@ -36,12 +36,8 @@ class DbExport extends Command
      */
     public function handle()
     {
-        $settings = [];
-        $dumper = $this->manager->driver($this->option('connection'));
-        $lockTables = $this->boolean($this->option('lock-tables'));
-
-        $dumper
-            ->lockTables($this->boolean($this->option('lock-tables')))
+        $this->manager->driver($this->option('connection'))
+            ->lockTables($this->option('lock-tables'))
             ->store($this->argument('file'), $this->option('path'));
     }
 
