@@ -57,6 +57,11 @@ class DbExporter
         return ob_get_clean();
     }
 
+    public function getDatabaseName()
+    {
+        return Arr::get($this->connection, 'database');
+    }
+
     private function boolean($value)
     {
         return filter_var($value, FILTER_VALIDATE_BOOLEAN);
