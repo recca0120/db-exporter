@@ -49,7 +49,7 @@ class DbExport extends Command
 
         $this->files
             ->disk($this->option('storage') ?: 'local')
-            ->put('db-export/'.$file, gzcompress($dumper->dump()));
+            ->put('db-export/'.$file, gzencode($dumper->dump()));
     }
 
     /**
