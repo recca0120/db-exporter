@@ -2,6 +2,7 @@
 
 namespace Recca0120\DbExporter\Console\Commands;
 
+use Carbon\Carbon;
 use Illuminate\Console\Command;
 use Recca0120\DbExporter\DbExporterManager;
 use Illuminate\Filesystem\FilesystemManager;
@@ -47,9 +48,10 @@ class DbExport extends Command
         $databaseName = $dumper->getDatabaseName();
         $file = sprintf('%s-%s.sql.gz', $databaseName, date('YmdHis'));
 
-        $this->files
-            ->disk($this->option('storage') ?: 'local')
-            ->put('db-export/'.$file, gzencode($dumper->dump()));
+        $disk = $this->files->disk($this->option('storage') ?: 'local');
+        $disk->put('sqldump/'.$file, gzencode($dumper->dump()));
+
+        $this->cleanup($disk);
     }
 
     /**
@@ -84,5 +86,15 @@ class DbExport extends Command
             ['connection', 'c', InputOption::VALUE_OPTIONAL, 'Connection Name'],
             ['lock-tables', null, InputOption::VALUE_OPTIONAL, 'Lock Tables', true],
         ];
+    }
+
+    private function cleanup($disk)
+    {
+        $timeLimit = Carbon::now()->subDays('3');
+        $files = array_filter($disk->files('sqldump'), function ($file) use ($disk, $timeLimit) {
+            return $timeLimit->gt(Carbon::createFromTimestamp($disk->lastModified($file)));
+        });
+
+        $disk->delete($files);
     }
 }
