@@ -22,23 +22,23 @@ class DbExporterManager extends Manager
 
     protected function createDriver($driver)
     {
-        $connection = $this->getConnection($driver);
+        $connection = $this->connection($driver);
 
         return new DbExporter(
             $connection,
-            $this->getSettings($connection),
+            $this->settings($connection),
             $this->factory
         );
     }
 
-    private function getConnection($driver)
+    private function connection($driver)
     {
         return Arr::get($this->app['config'], 'database.connections.'.$driver);
     }
 
-    private function getSettings($connection)
+    private function settings($connection)
     {
-        $settings = Arr::get($this->app['config'], 'db-exporter', []);
+        $settings = Arr::get($this->app['config'], 'db-exporter.settings', []);
 
         if (empty($connection['charset']) === false) {
             $settings['default-character-set'] = $connection['charset'];
