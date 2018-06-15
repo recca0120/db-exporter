@@ -5,7 +5,7 @@ namespace Recca0120\DbExporter\Console\Commands;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
 use Recca0120\DbExporter\DbExporterManager;
-use Illuminate\Filesystem\FilesystemManager;
+use Illuminate\Contracts\Filesystem\Factory;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Input\InputArgument;
 
@@ -29,7 +29,7 @@ class DbExport extends Command
 
     private $files;
 
-    public function __construct(DbExporterManager $manager, FilesystemManager $files)
+    public function __construct(DbExporterManager $manager, Factory $files)
     {
         parent::__construct();
         $this->manager = $manager;
@@ -48,7 +48,7 @@ class DbExport extends Command
         $databaseName = $dumper->getDatabaseName();
         $file = sprintf('%s-%s.sql.gz', $databaseName, date('YmdHis'));
 
-        $disk = $this->files->disk($this->option('storage') ?: 'local');
+        $disk = $this->files->disk($this->option('disk') ?: 'local');
         $disk->put('sqldump/'.$file, gzencode($dumper->dump()));
 
         $this->cleanup($disk);
@@ -82,7 +82,7 @@ class DbExport extends Command
     protected function getOptions()
     {
         return [
-            ['storage', 's', InputOption::VALUE_OPTIONAL, 'Storage'],
+            ['disk', 'd', InputOption::VALUE_OPTIONAL, 'Storage'],
             ['connection', 'c', InputOption::VALUE_OPTIONAL, 'Connection Name'],
             ['lock-tables', null, InputOption::VALUE_OPTIONAL, 'Lock Tables', true],
         ];
