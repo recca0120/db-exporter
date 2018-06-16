@@ -8,6 +8,7 @@ use Ifsnop\Mysqldump\Mysqldump;
 use PHPUnit\Framework\TestCase;
 use Recca0120\DbExporter\DbExporter;
 use Recca0120\DbExporter\DumperFactory;
+use Illuminate\Contracts\Filesystem\Factory as FilesystemFactory;
 
 class DbExporterTest extends TestCase
 {
@@ -29,24 +30,27 @@ class DbExporterTest extends TestCase
     /** @test */
     public function test_it_should_get_instance()
     {
+        $dumperFactory = m::mock(DumperFactory::class);
+        $filesystemFactory = m::mock(FilesystemFactory::class);
         $connection = Arr::get($this->app['config'], 'database.connections.mysql');
-        $options = $this->app['config']['db-exporter'];
+        $config = array_merge($this->app['config']['db-exporter'], compact('connection'));
 
-        $this->assertInstanceOf(DbExporter::class, new DbExporter($connection, $options));
+        $this->assertInstanceOf(DbExporter::class, new DbExporter($dumperFactory, $filesystemFactory, $config));
     }
 
     public function test_it_should_store_sql()
     {
+        $dumperFactory = m::mock(DumperFactory::class);
+        $filesystemFactory = m::mock(FilesystemFactory::class);
         $connection = Arr::get($this->app['config'], 'database.connections.mysql');
-        $options = $this->app['config']['db-exporter'];
-        $settings = $this->app['config']['db-exporter']['settings'];
-        $factory = m::mock(DumperFactory::class);
-        $dbExporter = new DbExporter($connection, $settings, $factory);
+        $config = array_merge($this->app['config']['db-exporter'], compact('connection'));
 
-        $factory->shouldReceive('create')->once()->with($connection, m::on(function ($arguments) use ($settings) {
-            $settings['compress'] = Mysqldump::NONE;
+        $dbExporter = new DbExporter($dumperFactory, $filesystemFactory, $config);
 
-            return $arguments === $settings;
+        $dumperFactory->shouldReceive('create')->once()->with($connection, m::on(function ($arguments) use ($config) {
+            $config['settings']['compress'] = Mysqldump::NONE;
+
+            return $arguments === $config['settings'];
         }))->andReturn(
             $dumper = m::mock(Mysqldump::class)
         );
@@ -61,14 +65,16 @@ class DbExporterTest extends TestCase
     /** @test */
     public function test_it_should_change_settings()
     {
+        $dumperFactory = m::mock(DumperFactory::class);
+        $filesystemFactory = m::mock(FilesystemFactory::class);
         $connection = Arr::get($this->app['config'], 'database.connections.mysql');
-        $settings = $this->app['config']['db-exporter']['settings'];
-        $factory = m::mock(DumperFactory::class);
-        $dbExporter = new DbExporter($connection, $settings, $factory);
+        $config = array_merge($this->app['config']['db-exporter'], compact('connection'));
+
+        $dbExporter = new DbExporter($dumperFactory, $filesystemFactory, $config);
 
         $dbExporter->lockTables(false);
 
-        $factory->shouldReceive('create')->once()->with($connection, m::on(function ($arguments) use ($settings) {
+        $dumperFactory->shouldReceive('create')->once()->with($connection, m::on(function ($arguments) use ($config) {
             return $arguments['lock-tables'] === false;
         }))->andReturn(
             $dumper = m::mock(Mysqldump::class)
@@ -79,5 +85,11 @@ class DbExporterTest extends TestCase
         });
 
         $this->assertSame('output', $dbExporter->dump());
+    }
+
+    /** @test */
+    public function test_it_should_store_to_file()
+    {
+        // assertions
     }
 }

@@ -16,7 +16,11 @@ class DbExporterServiceProvider extends ServiceProvider
         $this->mergeConfigFrom(__DIR__.'/../config/db-exporter.php', 'db-exporter');
 
         $this->app->singleton(DbExporterManager::class, function ($app) {
-            return new DbExporterManager($app, new DumperFactory(new DsnFactory()));
+            return new DbExporterManager(
+                $app,
+                new DumperFactory(new DsnFactory()),
+                $app['filesystem']
+            );
         });
 
         $this->commands([DbExport::class]);

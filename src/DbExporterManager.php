@@ -4,15 +4,19 @@ namespace Recca0120\DbExporter;
 
 use Illuminate\Support\Arr;
 use Illuminate\Support\Manager;
+use Illuminate\Contracts\Filesystem\Factory as FilesystemFactory;
 
 class DbExporterManager extends Manager
 {
-    private $factory;
+    private $dumperFactory;
 
-    public function __construct($app, DumperFactory $factory = null)
+    private $filesystemFactory;
+
+    public function __construct($app, DumperFactory $dumperFactory, FilesystemFactory $filesystemFactory)
     {
         parent::__construct($app);
-        $this->factory = $factory ?: new DumperFactory;
+        $this->dumperFactory = $dumperFactory;
+        $this->filesystemFactory = $filesystemFactory;
     }
 
     public function getDefaultDriver()
@@ -25,9 +29,9 @@ class DbExporterManager extends Manager
         $connection = $this->connection($driver);
 
         return new DbExporter(
-            $connection,
-            $this->settings($connection),
-            $this->factory
+            $this->dumperFactory,
+            $this->filesystemFactory,
+            $this->config($driver)
         );
     }
 
@@ -36,14 +40,14 @@ class DbExporterManager extends Manager
         return Arr::get($this->app['config'], 'database.connections.'.$driver);
     }
 
-    private function settings($connection)
+    private function config($driver)
     {
-        $settings = Arr::get($this->app['config'], 'db-exporter.settings', []);
-
+        $connection = Arr::get($this->app['config'], 'database.connections.'.$driver);
+        $config = Arr::get($this->app['config'], 'db-exporter', []);
         if (empty($connection['charset']) === false) {
-            $settings['default-character-set'] = $connection['charset'];
+            Arr::set($config, 'settings.default-character-set', $connection['charset']);
         }
 
-        return $settings;
+        return array_merge($config, compact('connection'));
     }
 }

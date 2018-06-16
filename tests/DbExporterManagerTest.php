@@ -5,7 +5,9 @@ namespace Recca0120\DbExporter\Tests;
 use Mockery as m;
 use PHPUnit\Framework\TestCase;
 use Recca0120\DbExporter\DbExporter;
+use Recca0120\DbExporter\DumperFactory;
 use Recca0120\DbExporter\DbExporterManager;
+use Illuminate\Contracts\Filesystem\Factory as FilesystemFactory;
 
 class DbExporterManagerTest extends TestCase
 {
@@ -26,13 +28,19 @@ class DbExporterManagerTest extends TestCase
     /** @test */
     public function test_it_should_be_instance()
     {
-        $this->assertInstanceOf(DbExporterManager::class, new DbExporterManager($this->app));
+        $dumperFactory = m::mock(DumperFactory::class);
+        $filesystemFactory = m::mock(FilesystemFactory::class);
+
+        $this->assertInstanceOf(DbExporterManager::class, new DbExporterManager($this->app, $dumperFactory, $filesystemFactory));
     }
 
     /** @test */
     public function test_it_should_get_default_driver()
     {
-        $manager = new DbExporterManager($this->app);
+        $dumperFactory = m::mock(DumperFactory::class);
+        $filesystemFactory = m::mock(FilesystemFactory::class);
+
+        $manager = new DbExporterManager($this->app, $dumperFactory, $filesystemFactory);
 
         $this->assertSame('mysql', $manager->getDefaultDriver());
     }
@@ -40,7 +48,10 @@ class DbExporterManagerTest extends TestCase
     /** @test */
     public function it_should_get_mysql_driver()
     {
-        $manager = new DbExporterManager($this->app);
+        $dumperFactory = m::mock(DumperFactory::class);
+        $filesystemFactory = m::mock(FilesystemFactory::class);
+
+        $manager = new DbExporterManager($this->app, $dumperFactory, $filesystemFactory);
 
         $this->assertInstanceOf(DbExporter::class, $manager->driver());
     }

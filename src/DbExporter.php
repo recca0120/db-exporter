@@ -2,22 +2,26 @@
 
 namespace Recca0120\DbExporter;
 
+use Carbon\Carbon;
 use Illuminate\Support\Arr;
 use Ifsnop\Mysqldump\Mysqldump;
+use Illuminate\Contracts\Filesystem\Factory as FilesystemFactory;
 
 class DbExporter
 {
-    private $connection;
+    private $dumperFactory;
 
-    private $settings = [];
+    private $filesystemFactory;
 
-    private $factory;
+    private $config = [];
 
-    public function __construct($connection, $settings = [], DumperFactory $factory = null)
+    private $directory = 'db-export';
+
+    public function __construct(DumperFactory $dumperFactory, FilesystemFactory $filesystemFactory, $config)
     {
-        $this->connection = $connection;
-        $this->settings = $settings;
-        $this->factory = $factory ?: new DumperFactory();
+        $this->dumperFactory = $dumperFactory;
+        $this->filesystemFactory = $filesystemFactory;
+        $this->config = $config;
     }
 
     public function lockTables($lockTables = true)
@@ -27,7 +31,7 @@ class DbExporter
 
     public function set($key, $value = null)
     {
-        Arr::set($this->settings, $key, $value);
+        Arr::set($this->config, 'settings.'.$key, $value);
 
         return $this;
     }
@@ -38,9 +42,9 @@ class DbExporter
             set_time_limit(0);
         }
 
-        $dumper = $this->factory->create(
-            $this->connection,
-            array_merge($this->settings, [
+        $dumper = $this->dumperFactory->create(
+            Arr::get($this->config, 'connection'),
+            array_merge(Arr::get($this->config, 'settings'), [
                 'compress' => Mysqldump::NONE,
             ])
         );
@@ -57,9 +61,23 @@ class DbExporter
         return ob_get_clean();
     }
 
-    public function getDatabaseName()
+    public function store($disk = null)
     {
-        return Arr::get($this->connection, 'database');
+        $file = sprintf('%s-%s.sql.gz', Arr::get($this->config, 'connection.database'), Carbon::now()->format('YmdHis'));
+        $disk = $this->filesystemFactory->disk($disk ?: Arr::get($this->config, 'disk'));
+        $disk->put($this->directory.'/'.$file, gzencode($this->dump(false)));
+
+        $this->cleanup($disk);
+    }
+
+    private function cleanup($disk)
+    {
+        $expireDate = Carbon::now()->subDays('3');
+        $files = array_filter($disk->files($this->directory), function ($file) use ($disk, $expireDate) {
+            return $expireDate->gt(Carbon::createFromTimestamp($disk->lastModified($file)));
+        });
+
+        $disk->delete($files);
     }
 
     private function boolean($value)

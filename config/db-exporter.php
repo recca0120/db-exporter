@@ -1,7 +1,7 @@
 <?php
 
 return [
-    'storage_path' => storage_path('db-exporter'),
+    'disk' => 'local',
     'settings' => [
         'include-tables' => [],
         'exclude-tables' => [],
