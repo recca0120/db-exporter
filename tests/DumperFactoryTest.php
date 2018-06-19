@@ -3,7 +3,6 @@
 namespace Recca0120\DbExporter\Tests;
 
 use PDO;
-use Mockery as m;
 use Illuminate\Support\Arr;
 use Ifsnop\Mysqldump\Mysqldump;
 use PHPUnit\Framework\TestCase;
@@ -17,12 +16,6 @@ class DumperFactoryTest extends TestCase
     {
         parent::setUp();
         $this->app['config']['database'] = require __DIR__.'/../config/database.php';
-    }
-
-    protected function tearDown()
-    {
-        parent::tearDown();
-        m::close();
     }
 
     /** @test */

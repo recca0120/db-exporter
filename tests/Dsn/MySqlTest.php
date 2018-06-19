@@ -2,18 +2,11 @@
 
 namespace Recca0120\DbExporter\Tests\Dsn;
 
-use Mockery as m;
 use PHPUnit\Framework\TestCase;
 use Recca0120\DbExporter\Dsn\MySql;
 
 class MySqlTest extends TestCase
 {
-    protected function tearDown()
-    {
-        parent::tearDown();
-        m::close();
-    }
-
     /** @test */
     public function test_get_host_dsn()
     {

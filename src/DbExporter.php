@@ -11,16 +11,16 @@ class DbExporter
 {
     private $dumperFactory;
 
-    private $filesystemFactory;
+    private $files;
 
     private $config = [];
 
     private $directory = 'db-export';
 
-    public function __construct(DumperFactory $dumperFactory, FilesystemFactory $filesystemFactory, $config)
+    public function __construct(DumperFactory $dumperFactory, FilesystemFactory $files, $config)
     {
         $this->dumperFactory = $dumperFactory;
-        $this->filesystemFactory = $filesystemFactory;
+        $this->files = $files;
         $this->config = $config;
     }
 
@@ -52,7 +52,7 @@ class DbExporter
         if ($output === true) {
             $dumper->start();
 
-            return '';
+            return;
         }
 
         ob_start();
@@ -61,23 +61,45 @@ class DbExporter
         return ob_get_clean();
     }
 
-    public function store($disk = null)
+    public function store($filename = null, $disk = null)
     {
-        $file = sprintf('%s-%s.sql.gz', Arr::get($this->config, 'connection.database'), Carbon::now()->format('YmdHis'));
-        $disk = $this->filesystemFactory->disk($disk ?: Arr::get($this->config, 'disk'));
-        $disk->put($this->directory.'/'.$file, gzencode($this->dump(false)));
+        $extension = Arr::get([
+            strtolower(Mysqldump::GZIP) => '.gz',
+            strtolower(Mysqldump::BZIP2) => '.bz2',
+            strtolower(Mysqldump::NONE) => '',
+        ], strtolower(Arr::get($this->config, 'settings.compress')), '');
+
+        $filename = $filename ?: sprintf('%s/%s-%s.sql', $this->directory, Arr::get($this->config, 'connection.database'), Carbon::now()->format('YmdHis'));
+        if (empty($extension) === false && (bool) preg_match('/\.'.$extension.'$/', $filename) === false) {
+            $filename .= $extension;
+        }
+
+        $disk = $this->files->disk($disk ?: Arr::get($this->config, 'disk'));
+        $disk->put($filename, $this->compressContents($this->dump(false), $extension));
 
         $this->cleanup($disk);
+    }
+
+    private function compressContents($contents, $extension)
+    {
+        if ($extension === '.gz') {
+            return gzencode($contents);
+        }
+
+        if ($extension === '.bz2') {
+            return bzcompress($contents);
+        }
+
+        return $contents;
     }
 
     private function cleanup($disk)
     {
         $expireDate = Carbon::now()->subDays('3');
-        $files = array_filter($disk->files($this->directory), function ($file) use ($disk, $expireDate) {
-            return $expireDate->gt(Carbon::createFromTimestamp($disk->lastModified($file)));
-        });
 
-        $disk->delete($files);
+        $disk->delete(array_filter($disk->files($this->directory), function ($file) use ($disk, $expireDate) {
+            return $expireDate->gt(Carbon::createFromTimestamp($disk->lastModified($file)));
+        }));
     }
 
     private function boolean($value)

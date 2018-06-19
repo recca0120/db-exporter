@@ -2,7 +2,6 @@
 
 namespace Recca0120\DbExporter\Tests\Dsn;
 
-use Mockery as m;
 use PHPUnit\Framework\TestCase;
 use Recca0120\DbExporter\Dsn\MySql;
 use Recca0120\DbExporter\Dsn\Factory;
@@ -26,12 +25,6 @@ class FactoryTest extends TestCase
             'timezone' => '+08:00',
         ],
     ];
-
-    protected function tearDown()
-    {
-        parent::tearDown();
-        m::close();
-    }
 
     /** @test */
     public function test_it_should_get_mysql_dsn()

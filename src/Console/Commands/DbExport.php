@@ -39,7 +39,7 @@ class DbExport extends Command
         $this->manager
             ->driver($this->option('connection'))
             ->lockTables($this->option('lock-tables'))
-            ->store($this->option('disk'));
+            ->store(null, $this->option('disk'));
     }
 
     /**
