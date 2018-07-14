@@ -87,31 +87,6 @@ class DbExporterTest extends TestCase
         $files->shouldReceive('disk')->with($config['disk'])->andReturn($disk = m::mock(stdClass::class));
         $disk->shouldReceive('put')->with($filename, 'output');
 
-        $disk->shouldReceive('files')->once()->andReturnUsing(function () {
-            return [
-                '1.sql',
-                '2.sql',
-                '3.sql',
-            ];
-        });
-
-        $disk->shouldReceive('lastModified')->times(3)->andReturnUsing(function ($filename) {
-            switch ($filename) {
-                case '1.sql':
-                    return strtotime('now');
-                case '2.sql':
-                    return strtotime('-5day');
-                case '3.sql':
-                    return strtotime('-10day');
-            }
-        });
-
-        $disk->shouldReceive('delete')->once()->with(m::on(function ($files) {
-            return array_values($files) === [
-                '2.sql', '3.sql',
-            ];
-        }));
-
         $dbExporter->store();
     }
 
@@ -141,31 +116,6 @@ class DbExporterTest extends TestCase
         $filename = sprintf('db-export/%s-%s.sql.gz', Arr::get($config, 'connection.database'), Carbon::now()->format('YmdHis'));
         $files->shouldReceive('disk')->with($config['disk'])->andReturn($disk = m::mock(stdClass::class));
         $disk->shouldReceive('put')->with($filename, gzencode('output'));
-
-        $disk->shouldReceive('files')->once()->andReturnUsing(function () {
-            return [
-                '1.sql.gz',
-                '2.sql.gz',
-                '3.sql.gz',
-            ];
-        });
-
-        $disk->shouldReceive('lastModified')->times(3)->andReturnUsing(function ($filename) {
-            switch ($filename) {
-                case '1.sql.gz':
-                    return strtotime('now');
-                case '2.sql.gz':
-                    return strtotime('-5day');
-                case '3.sql.gz':
-                    return strtotime('-10day');
-            }
-        });
-
-        $disk->shouldReceive('delete')->once()->with(m::on(function ($files) {
-            return array_values($files) === [
-                '2.sql.gz', '3.sql.gz',
-            ];
-        }));
 
         $dbExporter->store();
     }
@@ -201,31 +151,6 @@ class DbExporterTest extends TestCase
         $files->shouldReceive('disk')->with($config['disk'])->andReturn($disk = m::mock(stdClass::class));
         $disk->shouldReceive('put')->with($filename, bzcompress('output'));
 
-        $disk->shouldReceive('files')->once()->andReturnUsing(function () {
-            return [
-                '1.sql.bz2',
-                '2.sql.bz2',
-                '3.sql.bz2',
-            ];
-        });
-
-        $disk->shouldReceive('lastModified')->times(3)->andReturnUsing(function ($filename) {
-            switch ($filename) {
-                case '1.sql.bz2':
-                    return strtotime('now');
-                case '2.sql.bz2':
-                    return strtotime('-5day');
-                case '3.sql.bz2':
-                    return strtotime('-10day');
-            }
-        });
-
-        $disk->shouldReceive('delete')->once()->with(m::on(function ($files) {
-            return array_values($files) === [
-                '2.sql.bz2', '3.sql.bz2',
-            ];
-        }));
-
         $dbExporter->store();
     }
 
@@ -252,5 +177,45 @@ class DbExporterTest extends TestCase
         });
 
         $this->assertSame('output', $dbExporter->dump());
+    }
+
+    /** @test */
+    public function test_it_should_cleanup_old_files()
+    {
+        $dumperFactory = m::mock(DumperFactory::class);
+        $files = m::mock(FilesystemFactory::class);
+        $connection = Arr::get($this->app['config'], 'database.connections.mysql');
+        $config = array_merge($this->app['config']['db-exporter'], compact('connection'));
+
+        $dbExporter = new DbExporter($dumperFactory, $files, $config);
+
+        $files->shouldReceive('disk')->with($config['disk'])->andReturn($disk = m::mock(stdClass::class));
+
+        $disk->shouldReceive('files')->once()->andReturnUsing(function () {
+            return [
+                '1.sql.bz2',
+                '2.sql.bz2',
+                '3.sql.bz2',
+            ];
+        });
+
+        $disk->shouldReceive('lastModified')->times(3)->andReturnUsing(function ($filename) {
+            switch ($filename) {
+                case '1.sql.bz2':
+                    return strtotime('now');
+                case '2.sql.bz2':
+                    return strtotime('-5day');
+                case '3.sql.bz2':
+                    return strtotime('-10day');
+            }
+        });
+
+        $disk->shouldReceive('delete')->once()->with(m::on(function ($files) {
+            return array_values($files) === [
+                '2.sql.bz2', '3.sql.bz2',
+            ];
+        }));
+
+        $dbExporter->cleanup();
     }
 }

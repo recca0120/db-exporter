@@ -76,8 +76,16 @@ class DbExporter
 
         $disk = $this->files->disk($disk ?: Arr::get($this->config, 'disk'));
         $disk->put($filename, $this->compressContents($this->dump(false), $extension));
+    }
 
-        $this->cleanup($disk);
+    public function cleanup($disk = null)
+    {
+        $disk = $this->files->disk($disk ?: Arr::get($this->config, 'disk'));
+        $expireDate = Carbon::now()->subDays('3');
+
+        $disk->delete(array_filter($disk->files($this->directory), function ($file) use ($disk, $expireDate) {
+            return $expireDate->gt(Carbon::createFromTimestamp($disk->lastModified($file)));
+        }));
     }
 
     private function compressContents($contents, $extension)
@@ -91,15 +99,6 @@ class DbExporter
         }
 
         return $contents;
-    }
-
-    private function cleanup($disk)
-    {
-        $expireDate = Carbon::now()->subDays('3');
-
-        $disk->delete(array_filter($disk->files($this->directory), function ($file) use ($disk, $expireDate) {
-            return $expireDate->gt(Carbon::createFromTimestamp($disk->lastModified($file)));
-        }));
     }
 
     private function boolean($value)

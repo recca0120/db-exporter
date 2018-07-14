@@ -7,21 +7,21 @@ use Recca0120\DbExporter\DbExporterManager;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Input\InputArgument;
 
-class DbExport extends Command
+class DbCleanup extends Command
 {
     /**
      * The console command name.
      *
      * @var string
      */
-    protected $name = 'db-export:run';
+    protected $name = 'db-export:cleanup';
 
     /**
      * The console command description.
      *
      * @var string
      */
-    protected $description = 'db export';
+    protected $description = 'db export cleanup';
 
     private $manager;
 
@@ -36,10 +36,7 @@ class DbExport extends Command
      */
     public function handle()
     {
-        $this->manager
-            ->driver($this->option('connection'))
-            ->lockTables($this->option('lock-tables'))
-            ->store(null, $this->option('disk'));
+        $this->manager->cleanup($this->option('disk'));
     }
 
     /**
