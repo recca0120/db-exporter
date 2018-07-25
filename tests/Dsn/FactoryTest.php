@@ -30,6 +30,18 @@ class FactoryTest extends TestCase
     public function test_it_should_get_mysql_dsn()
     {
         $factory = new Factory();
+
         $this->assertInstanceOf(MySql::class, $factory->create($this->connections['mysql']));
+    }
+
+    /** @test */
+    public function test_it_should_get_mysql_dsn_with_write_host()
+    {
+        $factory = new Factory();
+
+        $config = $this->connections['mysql'];
+        $config['write']['host'] = 'foo.host';
+
+        $this->assertInstanceOf(MySql::class, $factory->create($config));
     }
 }

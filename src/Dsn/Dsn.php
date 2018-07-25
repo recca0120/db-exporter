@@ -2,6 +2,8 @@
 
 namespace Recca0120\DbExporter\Dsn;
 
+use Illuminate\Support\Arr;
+
 abstract class Dsn
 {
     protected $config;
@@ -9,6 +11,11 @@ abstract class Dsn
     public function __construct($config)
     {
         $this->config = $config;
+
+        $writeHost = Arr::get($this->config, 'write.host');
+        if (empty($writeHost) === false) {
+            $this->config['host'] = $writeHost;
+        }
     }
 
     public function __toString()
